@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wuyk.blog.dao.ContentsMapper" >
+  <resultMap id="BaseResultMap" type="com.wuyk.blog.pojo.Contents" >
+    <constructor >
+      <idArg column="cid" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="title" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="slug" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="created" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="modified" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="author_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="type" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="status" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="tags" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="categories" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="hits" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="comments_num" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="allow_comment" jdbcType="BIT" javaType="java.lang.Boolean" />
+      <arg column="allow_ping" jdbcType="BIT" javaType="java.lang.Boolean" />
+      <arg column="allow_feed" jdbcType="BIT" javaType="java.lang.Boolean" />
+    </constructor>
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.wuyk.blog.pojo.Contents" >
+    <constructor >
+      <idArg column="cid" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="title" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="slug" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="created" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="modified" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="author_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="type" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="status" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="tags" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="categories" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="hits" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="comments_num" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="allow_comment" jdbcType="BIT" javaType="java.lang.Boolean" />
+      <arg column="allow_ping" jdbcType="BIT" javaType="java.lang.Boolean" />
+      <arg column="allow_feed" jdbcType="BIT" javaType="java.lang.Boolean" />
+      <arg column="content" jdbcType="LONGVARCHAR" javaType="java.lang.String" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    cid, title, slug, created, modified, author_id, type, status, tags, categories, hits, 
+    comments_num, allow_comment, allow_ping, allow_feed
+  </sql>
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_contents
+    where cid = #{cid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_contents
+    where cid = #{cid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wuyk.blog.pojo.Contents" >
+    insert into t_contents (cid, title, slug, 
+      created, modified, author_id, 
+      type, status, tags, 
+      categories, hits, comments_num, 
+      allow_comment, allow_ping, allow_feed, 
+      content)
+    values (#{cid,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{slug,jdbcType=VARCHAR}, 
+      #{created,jdbcType=INTEGER}, #{modified,jdbcType=INTEGER}, #{authorId,jdbcType=INTEGER}, 
+      #{type,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
+      #{categories,jdbcType=VARCHAR}, #{hits,jdbcType=INTEGER}, #{commentsNum,jdbcType=INTEGER}, 
+      #{allowComment,jdbcType=BIT}, #{allowPing,jdbcType=BIT}, #{allowFeed,jdbcType=BIT}, 
+      #{content,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wuyk.blog.pojo.Contents" >
+    insert into t_contents
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="cid != null" >
+        cid,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="slug != null" >
+        slug,
+      </if>
+      <if test="created != null" >
+        created,
+      </if>
+      <if test="modified != null" >
+        modified,
+      </if>
+      <if test="authorId != null" >
+        author_id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="tags != null" >
+        tags,
+      </if>
+      <if test="categories != null" >
+        categories,
+      </if>
+      <if test="hits != null" >
+        hits,
+      </if>
+      <if test="commentsNum != null" >
+        comments_num,
+      </if>
+      <if test="allowComment != null" >
+        allow_comment,
+      </if>
+      <if test="allowPing != null" >
+        allow_ping,
+      </if>
+      <if test="allowFeed != null" >
+        allow_feed,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="cid != null" >
+        #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="slug != null" >
+        #{slug,jdbcType=VARCHAR},
+      </if>
+      <if test="created != null" >
+        #{created,jdbcType=INTEGER},
+      </if>
+      <if test="modified != null" >
+        #{modified,jdbcType=INTEGER},
+      </if>
+      <if test="authorId != null" >
+        #{authorId,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="tags != null" >
+        #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="categories != null" >
+        #{categories,jdbcType=VARCHAR},
+      </if>
+      <if test="hits != null" >
+        #{hits,jdbcType=INTEGER},
+      </if>
+      <if test="commentsNum != null" >
+        #{commentsNum,jdbcType=INTEGER},
+      </if>
+      <if test="allowComment != null" >
+        #{allowComment,jdbcType=BIT},
+      </if>
+      <if test="allowPing != null" >
+        #{allowPing,jdbcType=BIT},
+      </if>
+      <if test="allowFeed != null" >
+        #{allowFeed,jdbcType=BIT},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wuyk.blog.pojo.Contents" >
+    update t_contents
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="slug != null" >
+        slug = #{slug,jdbcType=VARCHAR},
+      </if>
+      <if test="created != null" >
+        created = #{created,jdbcType=INTEGER},
+      </if>
+      <if test="modified != null" >
+        modified = #{modified,jdbcType=INTEGER},
+      </if>
+      <if test="authorId != null" >
+        author_id = #{authorId,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="tags != null" >
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="categories != null" >
+        categories = #{categories,jdbcType=VARCHAR},
+      </if>
+      <if test="hits != null" >
+        hits = #{hits,jdbcType=INTEGER},
+      </if>
+      <if test="commentsNum != null" >
+        comments_num = #{commentsNum,jdbcType=INTEGER},
+      </if>
+      <if test="allowComment != null" >
+        allow_comment = #{allowComment,jdbcType=BIT},
+      </if>
+      <if test="allowPing != null" >
+        allow_ping = #{allowPing,jdbcType=BIT},
+      </if>
+      <if test="allowFeed != null" >
+        allow_feed = #{allowFeed,jdbcType=BIT},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.wuyk.blog.pojo.Contents" >
+    update t_contents
+    set title = #{title,jdbcType=VARCHAR},
+      slug = #{slug,jdbcType=VARCHAR},
+      created = #{created,jdbcType=INTEGER},
+      modified = #{modified,jdbcType=INTEGER},
+      author_id = #{authorId,jdbcType=INTEGER},
+      type = #{type,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      categories = #{categories,jdbcType=VARCHAR},
+      hits = #{hits,jdbcType=INTEGER},
+      comments_num = #{commentsNum,jdbcType=INTEGER},
+      allow_comment = #{allowComment,jdbcType=BIT},
+      allow_ping = #{allowPing,jdbcType=BIT},
+      allow_feed = #{allowFeed,jdbcType=BIT},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wuyk.blog.pojo.Contents" >
+    update t_contents
+    set title = #{title,jdbcType=VARCHAR},
+      slug = #{slug,jdbcType=VARCHAR},
+      created = #{created,jdbcType=INTEGER},
+      modified = #{modified,jdbcType=INTEGER},
+      author_id = #{authorId,jdbcType=INTEGER},
+      type = #{type,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      categories = #{categories,jdbcType=VARCHAR},
+      hits = #{hits,jdbcType=INTEGER},
+      comments_num = #{commentsNum,jdbcType=INTEGER},
+      allow_comment = #{allowComment,jdbcType=BIT},
+      allow_ping = #{allowPing,jdbcType=BIT},
+      allow_feed = #{allowFeed,jdbcType=BIT}
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+</mapper>
