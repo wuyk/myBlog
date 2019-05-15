@@ -1,9 +1,8 @@
 package com.wuyk.blog.utils;
 
-import com.wuyk.blog.Tools;
 import com.wuyk.blog.constant.WebConst;
 import com.wuyk.blog.exception.TipException;
-import com.wuyk.blog.vo.UserVo;
+import com.wuyk.blog.pojo.UsersDo;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.Extension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
@@ -37,7 +36,7 @@ import java.util.regex.Pattern;
  * Created by 13 on 2017/2/21.
  */
 public class TaleUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaleUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaleUtils.class);
     /**
      * 一个月
      */
@@ -81,7 +80,7 @@ public class TaleUtils {
             InputStream resourceAsStream = new FileInputStream(fileName);
             properties.load(resourceAsStream);
         } catch (TipException | IOException e) {
-            LOGGER.error("get properties file fail={}", e.getMessage());
+            logger.error("get properties file fail={}", e.getMessage());
         }
         return properties;
     }
@@ -142,12 +141,12 @@ public class TaleUtils {
      *
      * @return
      */
-    public static UserVo getLoginUser(HttpServletRequest request) {
+    public static UsersDo getLoginUser(HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (null == session) {
             return null;
         }
-        return (UserVo) session.getAttribute(WebConst.LOGIN_SESSION_KEY);
+        return (UsersDo) session.getAttribute(WebConst.LOGIN_SESSION_KEY);
     }
 
 
@@ -257,7 +256,7 @@ public class TaleUtils {
         try {
             response.sendRedirect(Commons.site_url());
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
     }
 

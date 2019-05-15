@@ -4,7 +4,7 @@ package com.wuyk.blog.utils;
 import com.github.pagehelper.PageInfo;
 import com.vdurmont.emoji.EmojiParser;
 import com.wuyk.blog.constant.WebConst;
-import com.wuyk.blog.vo.ContentVo;
+import com.wuyk.blog.pojo.ContentsDo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -146,7 +146,7 @@ public final class Commons {
      * @param contents
      * @return
      */
-    public static String permalink(ContentVo contents) {
+    public static String permalink(ContentsDo contents) {
         return permalink(contents.getCid(), contents.getSlug());
     }
 
@@ -273,7 +273,7 @@ public final class Commons {
      *
      * @return
      */
-    public static String show_thumb(ContentVo contents) {
+    public static String show_thumb(ContentsDo contents) {
         int cid = contents.getCid();
         int size = cid % 20;
         size = size == 0 ? 1 : size;

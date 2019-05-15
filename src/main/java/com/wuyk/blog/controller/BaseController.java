@@ -2,7 +2,7 @@ package com.wuyk.blog.controller;
 
 import com.wuyk.blog.utils.MapCache;
 import com.wuyk.blog.utils.TaleUtils;
-import com.wuyk.blog.vo.UserVo;
+import com.wuyk.blog.pojo.UsersDo;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public abstract class BaseController {
 
-    public static String THEME = "themes/default";
+    private static String THEME = "themes/default";
 
     protected MapCache cache = MapCache.single();
 
@@ -39,7 +39,7 @@ public abstract class BaseController {
      * @param request
      * @return
      */
-    public UserVo user(HttpServletRequest request) {
+    public UsersDo user(HttpServletRequest request) {
         return TaleUtils.getLoginUser(request);
     }
 

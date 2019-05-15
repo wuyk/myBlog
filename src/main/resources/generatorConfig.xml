@@ -35,7 +35,6 @@
             targetPackage     指定生成的model生成所在的包名
             targetProject     指定在该项目下所在的路径
         -->
-        <!--<javaModelGenerator targetPackage="com.mall.pojo" targetProject=".\src\main\java">-->
         <javaModelGenerator targetPackage="com.wuyk.blog.pojo" targetProject="./src/main/java">
             <!-- 是否允许子包，即targetPackage.schemaName.tableName -->
             <property name="enableSubPackages" value="false"/>
@@ -64,26 +63,26 @@
             <!-- enableSubPackages:是否让schema作为包的后缀 -->
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
-        <table tableName="t_attach" domainObjectName="Attach" enableCountByExample="false"
+        <table tableName="t_attach" domainObjectName="AttachDo" enableCountByExample="false"
                enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false"/>
-        <table tableName="t_comments" domainObjectName="Comments" enableCountByExample="false"
+        <table tableName="t_comments" domainObjectName="CommentsDo" enableCountByExample="false"
                enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
-        <table tableName="t_contents" domainObjectName="Contents" enableCountByExample="false"
+        <table tableName="t_contents" domainObjectName="ContentsDo" enableCountByExample="false"
                enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
-        <table tableName="t_logs" domainObjectName="Logs" enableCountByExample="false" enableUpdateByExample="false"
+        <table tableName="t_logs" domainObjectName="LogsDo" enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
-        <table tableName="t_metas" domainObjectName="Metas" enableCountByExample="false" enableUpdateByExample="false"
+        <table tableName="t_metas" domainObjectName="MetasDo" enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
-        <table tableName="t_options" domainObjectName="Options" enableCountByExample="false"
+        <table tableName="t_options" domainObjectName="OptionsDo" enableCountByExample="false"
                enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
-        <table tableName="t_relationships" domainObjectName="Relationships" enableCountByExample="false"
+        <table tableName="t_relationships" domainObjectName="RelationshipsDo" enableCountByExample="false"
                enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
-        <table tableName="t_users" domainObjectName="Users" enableCountByExample="false" enableUpdateByExample="false"
+        <table tableName="t_users" domainObjectName="UsersDo" enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
 
         <!-- note mybatis插件的搭建 -->
