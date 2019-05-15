@@ -16,4 +16,13 @@ public interface ILogService {
      * @return 日志
      */
     List<LogsDo> getLogs(int page, int limit);
+
+    /**
+     *  保存
+     * @param action
+     * @param data
+     * @param ip
+     * @param authorId
+     */
+    void insertLog(String action, String data, String ip, Integer authorId);
 }

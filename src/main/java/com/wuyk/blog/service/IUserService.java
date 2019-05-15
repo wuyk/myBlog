@@ -13,4 +13,12 @@ public interface IUserService {
      * @return
      */
     UsersDo queryUserById(Integer uid);
+
+    /**
+     * 用戶登录
+     * @param username
+     * @param password
+     * @return
+     */
+    UsersDo login(String username, String password);
 }

@@ -1,6 +1,9 @@
 package com.wuyk.blog.dao;
 
 import com.wuyk.blog.pojo.UsersDo;
+import com.wuyk.blog.pojo.vo.UsersVo;
+
+import java.util.List;
 
 public interface UsersDoMapper {
     int deleteByPrimaryKey(Integer uid);
@@ -14,4 +17,8 @@ public interface UsersDoMapper {
     int updateByPrimaryKeySelective(UsersDo record);
 
     int updateByPrimaryKey(UsersDo record);
+
+    long countByExample(UsersVo example);
+
+    List<UsersDo> selectByExample(UsersVo example);
 }

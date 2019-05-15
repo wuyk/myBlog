@@ -6,6 +6,7 @@ import com.wuyk.blog.dao.LogsDoMapper;
 import com.wuyk.blog.pojo.LogsDo;
 import com.wuyk.blog.pojo.vo.LogsVo;
 import com.wuyk.blog.service.ILogService;
+import com.wuyk.blog.utils.DateKit;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -32,5 +33,16 @@ public class LogServiceImpl implements ILogService {
         logsVo.setOrderByClause("id desc");
         PageHelper.startPage((page - 1) * limit, limit);
         return logsDoMapper.selectByExample(logsVo);
+    }
+
+    @Override
+    public void insertLog(String action, String data, String ip, Integer authorId) {
+        LogsDo logs = new LogsDo();
+        logs.setAction(action);
+        logs.setData(data);
+        logs.setIp(ip);
+        logs.setAuthorId(authorId);
+        logs.setCreated(DateKit.getCurrentUnixTime());
+        logsDoMapper.insert(logs);
     }
 }
