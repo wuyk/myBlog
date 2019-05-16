@@ -50,4 +50,17 @@ public class UserServiceImpl implements IUserService {
         }
         return usersDoList.get(0);
     }
+
+    @Override
+    public void updateByUid(UsersDo usersDo) {
+        if (usersDo == null || usersDo.getUid() == null) {
+            throw new TipException("用户信息不完整");
+        }
+        int i = usersDoMapper.updateByPrimaryKeySelective(usersDo);
+        if (i != 1) {
+            throw new TipException("更新用户信息失败");
+        }
+    }
+
+
 }

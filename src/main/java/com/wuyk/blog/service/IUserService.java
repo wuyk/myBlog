@@ -21,4 +21,11 @@ public interface IUserService {
      * @return
      */
     UsersDo login(String username, String password);
+
+    /**
+     * 根据主键更新user对象
+     * @param usersDo
+     * @return
+     */
+    void updateByUid(UsersDo usersDo);
 }

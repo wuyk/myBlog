@@ -18,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 
 /**
@@ -29,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 @Transactional(rollbackFor = TipException.class)
 public class LoginController extends BaseController {
 
-    private static final Logger loggger = LoggerFactory.getLogger(LoginController.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @Resource
     private IUserService userService;
@@ -64,10 +67,25 @@ public class LoginController extends BaseController {
             if (e instanceof TipException) {
                 msg = e.getMessage();
             } else {
-                loggger.error(msg, e);
+                logger.error(msg, e);
             }
             return RestResponse.fail(msg);
         }
         return RestResponse.ok();
+    }
+
+    @GetMapping("logout")
+    public void logout(HttpSession session, HttpServletResponse response) {
+        session.removeAttribute(WebConst.LOGIN_SESSION_KEY);
+        Cookie cookie = new Cookie(WebConst.USER_IN_COOKIE, "");
+        cookie.setValue(null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        try {
+            response.sendRedirect("/admin/login");
+        } catch (IOException e) {
+            logger.error("注销失败", e.getMessage());
+        }
     }
 }

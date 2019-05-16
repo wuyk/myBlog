@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 @Component
 public final class Commons {
 
-    public static String THEME = "themes/default";
+    private static String THEME = "themes/default";
 
     /**
      * 判断分页中是否有数据
@@ -132,12 +132,12 @@ public final class Commons {
      * @return
      */
     public static String gravatar(String email) {
-        String avatarUrl = "https://github.com/identicons/";
-        if (StringUtils.isBlank(email)) {
-            email = "user@hanshuai.xin";
-        }
-        String hash = TaleUtils.MD5encode(email.trim().toLowerCase());
-        return avatarUrl + hash + ".png";
+        //String avatarUrl = "https://github.com/identicons/";
+        //if (StringUtils.isBlank(email)) {
+        //    email = myEmailLocation;
+        //}
+        //String hash = TaleUtils.MD5encode(email.trim().toLowerCase());
+        return "https://avatars3.githubusercontent.com/u/20266011?s=400&u=42a0239996cc67b868055650d42c3c02070ef68b&v=4.png";
     }
 
     /**
