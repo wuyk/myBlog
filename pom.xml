@@ -13,6 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>blog</name>
     <description>wuyk_blog by springboot</description>
+    <packaging>war</packaging>
 
     <properties>
         <docker.image.prefix>blog</docker.image.prefix>

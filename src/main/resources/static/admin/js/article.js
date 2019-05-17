@@ -1,7 +1,4 @@
-/**
- * Created by 13 on 2017/2/22.
- */
-// Tags Input
+
 $('#tags').tagsInput({
     width: '100%',
     height: '35px',

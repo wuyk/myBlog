@@ -2,6 +2,7 @@ package com.wuyk.blog.dao;
 
 import com.wuyk.blog.pojo.ContentsDo;
 import com.wuyk.blog.pojo.vo.ContentsVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -25,4 +26,6 @@ public interface ContentsDoMapper {
     List<ContentsDo> selectByExample(ContentsVo example);
 
     long countByExample(ContentsVo example);
+
+    int updateByExampleSelective(@Param("record") ContentsDo record, @Param("example") ContentsVo example);
 }

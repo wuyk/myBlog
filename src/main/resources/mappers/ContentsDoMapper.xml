@@ -70,6 +70,35 @@
             </foreach>
         </where>
     </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
     <sql id="Base_Column_List">
         cid, title, slug, created, modified, author_id, type, status, tags, categories, hits,
         comments_num, allow_comment, allow_ping, allow_feed
@@ -361,4 +390,61 @@
             <include refid="Example_Where_Clause" />
         </if>
     </select>
+
+    <update id="updateByExampleSelective" parameterType="map">
+        update t_contents
+        <set>
+            <if test="record.cid != null">
+                cid = #{record.cid,jdbcType=INTEGER},
+            </if>
+            <if test="record.title != null">
+                title = #{record.title,jdbcType=VARCHAR},
+            </if>
+            <if test="record.slug != null">
+                slug = #{record.slug,jdbcType=VARCHAR},
+            </if>
+            <if test="record.created != null">
+                created = #{record.created,jdbcType=INTEGER},
+            </if>
+            <if test="record.modified != null">
+                modified = #{record.modified,jdbcType=INTEGER},
+            </if>
+            <if test="record.authorId != null">
+                author_id = #{record.authorId,jdbcType=INTEGER},
+            </if>
+            <if test="record.type != null">
+                type = #{record.type,jdbcType=VARCHAR},
+            </if>
+            <if test="record.status != null">
+                status = #{record.status,jdbcType=VARCHAR},
+            </if>
+            <if test="record.tags != null">
+                tags = #{record.tags,jdbcType=VARCHAR},
+            </if>
+            <if test="record.categories != null">
+                categories = #{record.categories,jdbcType=VARCHAR},
+            </if>
+            <if test="record.hits != null">
+                hits = #{record.hits,jdbcType=INTEGER},
+            </if>
+            <if test="record.commentsNum != null">
+                comments_num = #{record.commentsNum,jdbcType=INTEGER},
+            </if>
+            <if test="record.allowComment != null">
+                allow_comment = #{record.allowComment,jdbcType=BIT},
+            </if>
+            <if test="record.allowPing != null">
+                allow_ping = #{record.allowPing,jdbcType=BIT},
+            </if>
+            <if test="record.allowFeed != null">
+                allow_feed = #{record.allowFeed,jdbcType=BIT},
+            </if>
+            <if test="record.content != null">
+                content = #{record.content,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause" />
+        </if>
+    </update>
 </mapper>

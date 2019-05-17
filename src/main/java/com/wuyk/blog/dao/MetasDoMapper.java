@@ -3,6 +3,8 @@ package com.wuyk.blog.dao;
 import com.wuyk.blog.pojo.MetasDo;
 import com.wuyk.blog.pojo.vo.MetasVo;
 
+import java.util.List;
+
 public interface MetasDoMapper {
     int deleteByPrimaryKey(Integer mid);
 
@@ -17,4 +19,6 @@ public interface MetasDoMapper {
     int updateByPrimaryKey(MetasDo record);
 
     long countByExample(MetasVo example);
+
+    List<MetasDo> selectByExample(MetasVo example);
 }

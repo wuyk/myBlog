@@ -1,8 +1,9 @@
 package com.wuyk.blog.service;
 
-import com.wuyk.blog.pojo.bo.StatisticsBo;
 import com.wuyk.blog.pojo.CommentsDo;
 import com.wuyk.blog.pojo.ContentsDo;
+import com.wuyk.blog.pojo.bo.BackResponseBo;
+import com.wuyk.blog.pojo.bo.StatisticsBo;
 
 import java.util.List;
 
@@ -31,4 +32,13 @@ public interface ISiteService {
      * @return
      */
     StatisticsBo getStatistics();
+
+    /**
+     * 系统备份
+     * @param bk_type
+     * @param bk_path
+     * @param fmt
+     * @return
+     */
+    BackResponseBo backup(String bk_type, String bk_path, String fmt) throws Exception;
 }

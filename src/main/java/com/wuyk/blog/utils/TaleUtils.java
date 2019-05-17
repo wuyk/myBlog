@@ -11,7 +11,9 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.Cookie;
@@ -32,11 +34,18 @@ import java.util.regex.Pattern;
 
 /**
  * Tale工具类
- * <p>
- * Created by 13 on 2017/2/21.
  */
+@Component
 public class TaleUtils {
     private static final Logger logger = LoggerFactory.getLogger(TaleUtils.class);
+
+    private static String uploadPath;
+
+    @Value("${upload.path}")
+    public void setUploadPath(String path) {
+        uploadPath = path;
+    }
+
     /**
      * 一个月
      */
@@ -350,7 +359,9 @@ public class TaleUtils {
     }
 
     public static String getFileKey(String name) {
-        String prefix = "/upload/" + DateKit.dateFormat(new Date(), "yyyy/MM");
+        String prefix = uploadPath + DateKit.dateFormat(new Date(), "yyyy/MM");
+        System.out.println("--------------" + uploadPath + "--------");
+        System.out.println("--------------" + prefix + "--------");
         if (!new File(TaleUtils.getUploadFilePath() + prefix).exists()) {
             new File(TaleUtils.getUploadFilePath() + prefix).mkdirs();
         }
