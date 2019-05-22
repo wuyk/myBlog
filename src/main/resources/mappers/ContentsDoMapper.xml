@@ -119,7 +119,7 @@
         from t_contents
         where cid = #{cid,jdbcType=INTEGER}
     </delete>
-    <insert id="insert" parameterType="com.wuyk.blog.pojo.ContentsDo">
+    <insert id="insert" parameterType="com.wuyk.blog.pojo.ContentsDo" useGeneratedKeys="true" keyProperty="cid">
         insert into t_contents (cid,
                                 title,
                                 slug,

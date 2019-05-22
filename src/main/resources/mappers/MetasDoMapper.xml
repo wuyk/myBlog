@@ -66,7 +66,7 @@
                 #{sort,jdbcType=INTEGER},
                 #{parent,jdbcType=INTEGER})
     </insert>
-    <insert id="insertSelective" parameterType="com.wuyk.blog.pojo.MetasDo">
+    <insert id="insertSelective" parameterType="com.wuyk.blog.pojo.MetasDo" useGeneratedKeys="true" keyProperty="mid">
         insert into t_metas
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="mid != null">
