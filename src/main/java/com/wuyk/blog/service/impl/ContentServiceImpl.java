@@ -101,7 +101,7 @@ public class ContentServiceImpl implements IContentService {
             }
             if (!TaleUtils.isPath(contentsDo.getSlug())) return "您输入的路径不合法";
             ContentsVo contentsVo = new ContentsVo();
-            contentsVo.createCriteria().andTypeEqualTo(contentsDo.getType()).andStatusEqualTo(contentsDo.getSlug());
+            contentsVo.createCriteria().andTypeEqualTo(contentsDo.getType()).andSlugEqualTo(contentsDo.getSlug());
             long count = contentsDoMapper.countByExample(contentsVo);
             if (count > 0) return "该路径已经存在，请重新输入";
         } else {
