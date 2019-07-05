@@ -1,13 +1,13 @@
 package com.wuyk.blog.controller;
 
+import com.wuyk.blog.model.Vo.UserVo;
 import com.wuyk.blog.utils.MapCache;
 import com.wuyk.blog.utils.TaleUtils;
-import com.wuyk.blog.pojo.UsersDo;
 
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Created by wuyk
+ * 13 on 2017/2/21.
  */
 public abstract class BaseController {
 
@@ -39,7 +39,7 @@ public abstract class BaseController {
      * @param request
      * @return
      */
-    public UsersDo user(HttpServletRequest request) {
+    public UserVo user(HttpServletRequest request) {
         return TaleUtils.getLoginUser(request);
     }
 
@@ -50,4 +50,5 @@ public abstract class BaseController {
     public String render_404() {
         return "comm/error_404";
     }
+
 }

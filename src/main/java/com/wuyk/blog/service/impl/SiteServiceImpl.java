@@ -1,21 +1,19 @@
 package com.wuyk.blog.service.impl;
 
 import com.github.pagehelper.PageHelper;
-import com.wuyk.blog.constant.TypeEnum;
+import com.wuyk.blog.constant.WebConst;
 import com.wuyk.blog.controller.admin.AttachController;
-import com.wuyk.blog.dao.AttachDoMapper;
-import com.wuyk.blog.dao.CommentsDoMapper;
-import com.wuyk.blog.dao.ContentsDoMapper;
-import com.wuyk.blog.dao.MetasDoMapper;
+import com.wuyk.blog.dao.AttachVoMapper;
+import com.wuyk.blog.dao.CommentVoMapper;
+import com.wuyk.blog.dao.ContentVoMapper;
+import com.wuyk.blog.dao.MetaVoMapper;
+import com.wuyk.blog.dto.MetaDto;
+import com.wuyk.blog.dto.Types;
 import com.wuyk.blog.exception.TipException;
-import com.wuyk.blog.pojo.CommentsDo;
-import com.wuyk.blog.pojo.ContentsDo;
-import com.wuyk.blog.pojo.bo.BackResponseBo;
-import com.wuyk.blog.pojo.bo.StatisticsBo;
-import com.wuyk.blog.pojo.vo.AttachVo;
-import com.wuyk.blog.pojo.vo.CommentsVo;
-import com.wuyk.blog.pojo.vo.ContentsVo;
-import com.wuyk.blog.pojo.vo.MetasVo;
+import com.wuyk.blog.model.Bo.ArchiveBo;
+import com.wuyk.blog.model.Bo.BackResponseBo;
+import com.wuyk.blog.model.Bo.StatisticsBo;
+import com.wuyk.blog.model.Vo.*;
 import com.wuyk.blog.service.ISiteService;
 import com.wuyk.blog.utils.DateKit;
 import com.wuyk.blog.utils.TaleUtils;
@@ -31,75 +29,55 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
- * Created by wuyk
+ * 2017/3/7.
  */
 @Service
 public class SiteServiceImpl implements ISiteService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SiteServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SiteServiceImpl.class);
 
     @Resource
-    private CommentsDoMapper commentsDoMapper;
+    private CommentVoMapper commentDao;
 
     @Resource
-    private ContentsDoMapper contentsDoMapper;
+    private ContentVoMapper contentDao;
 
     @Resource
-    private AttachDoMapper attachDoMapper;
+    private AttachVoMapper attachDao;
 
     @Resource
-    private MetasDoMapper metasDoMapper;
+    private MetaVoMapper metaDao;
 
     @Override
-    public List<CommentsDo> recentComments(int limit) {
+    public List<CommentVo> recentComments(int limit) {
+        LOGGER.debug("Enter recentComments method:limit={}", limit);
         if (limit < 0 || limit > 10) {
             limit = 10;
         }
-        CommentsVo commentsVo = new CommentsVo();
-        commentsVo.setOrderByClause("created desc");
+        CommentVoExample example = new CommentVoExample();
+        example.setOrderByClause("created desc");
         PageHelper.startPage(1, limit);
-        return commentsDoMapper.selectByExampleWithBLOBs(commentsVo);
+        List<CommentVo> byPage = commentDao.selectByExampleWithBLOBs(example);
+        LOGGER.debug("Exit recentComments method");
+        return byPage;
     }
 
     @Override
-    public List<ContentsDo> recentContents(int limit) {
+    public List<ContentVo> recentContents(int limit) {
+        LOGGER.debug("Enter recentContents method");
         if (limit < 0 || limit > 10) {
             limit = 10;
         }
-        ContentsVo contentsVo = new ContentsVo();
-        contentsVo.createCriteria().andStatusEqualTo(TypeEnum.PUBLISH.getType()).andTypeEqualTo(TypeEnum.ARTICLE.getType());
-        contentsVo.setOrderByClause("created desc");
+        ContentVoExample example = new ContentVoExample();
+        example.createCriteria().andStatusEqualTo(Types.PUBLISH.getType()).andTypeEqualTo(Types.ARTICLE.getType());
+        example.setOrderByClause("created desc");
         PageHelper.startPage(1, limit);
-        return contentsDoMapper.selectByExampleWithBLOBs(contentsVo);
-    }
-
-    @Override
-    public StatisticsBo getStatistics() {
-        StatisticsBo statistics = new StatisticsBo();
-
-        ContentsVo contentsVo = new ContentsVo();
-        contentsVo.createCriteria().andTypeEqualTo(TypeEnum.ARTICLE.getType()).andStatusEqualTo(TypeEnum.PUBLISH.getType());
-        Long articles =   contentsDoMapper.countByExample(contentsVo);
-
-        Long comments = commentsDoMapper.countByExample(new CommentsVo());
-
-        Long attachs = attachDoMapper.countByExample(new AttachVo());
-
-        MetasVo metaVoExample = new MetasVo();
-        metaVoExample.createCriteria().andTypeEqualTo(TypeEnum.LINK.getType());
-        Long links = metasDoMapper.countByExample(metaVoExample);
-
-        statistics.setArticles(articles);
-        statistics.setComments(comments);
-        statistics.setAttachs(attachs);
-        statistics.setLinks(links);
-        return statistics;
+        List<ContentVo> list = contentDao.selectByExample(example);
+        LOGGER.debug("Exit recentContents method");
+        return list;
     }
 
     @Override
@@ -165,6 +143,84 @@ public class SiteServiceImpl implements ISiteService {
         return backResponse;
     }
 
+    @Override
+    public CommentVo getComment(Integer coid) {
+        if (null != coid) {
+            return commentDao.selectByPrimaryKey(coid);
+        }
+        return null;
+    }
+
+    @Override
+    public StatisticsBo getStatistics() {
+        LOGGER.debug("Enter getStatistics method");
+        StatisticsBo statistics = new StatisticsBo();
+
+        ContentVoExample contentVoExample = new ContentVoExample();
+        contentVoExample.createCriteria().andTypeEqualTo(Types.ARTICLE.getType()).andStatusEqualTo(Types.PUBLISH.getType());
+        Long articles =   contentDao.countByExample(contentVoExample);
+
+        Long comments = commentDao.countByExample(new CommentVoExample());
+
+        Long attachs = attachDao.countByExample(new AttachVoExample());
+
+        MetaVoExample metaVoExample = new MetaVoExample();
+        metaVoExample.createCriteria().andTypeEqualTo(Types.LINK.getType());
+        Long links = metaDao.countByExample(metaVoExample);
+
+        statistics.setArticles(articles);
+        statistics.setComments(comments);
+        statistics.setAttachs(attachs);
+        statistics.setLinks(links);
+        LOGGER.debug("Exit getStatistics method");
+        return statistics;
+    }
+
+    @Override
+    public List<ArchiveBo> getArchives() {
+        LOGGER.debug("Enter getArchives method");
+        List<ArchiveBo> archives = contentDao.findReturnArchiveBo();
+        if (null != archives) {
+            archives.forEach(archive -> {
+                ContentVoExample example = new ContentVoExample();
+                ContentVoExample.Criteria criteria = example.createCriteria().andTypeEqualTo(Types.ARTICLE.getType()).andStatusEqualTo(Types.PUBLISH.getType());
+                example.setOrderByClause("created desc");
+                String date = archive.getDate();
+                Date sd = DateKit.dateFormat(date, "yyyy年MM月");
+                int start = DateKit.getUnixTimeByDate(sd);
+                int end = DateKit.getUnixTimeByDate(DateKit.dateAdd(DateKit.INTERVAL_MONTH, sd, 1)) - 1;
+                criteria.andCreatedGreaterThan(start);
+                criteria.andCreatedLessThan(end);
+                List<ContentVo> contentss = contentDao.selectByExample(example);
+                archive.setArticles(contentss);
+            });
+        }
+        LOGGER.debug("Exit getArchives method");
+        return archives;
+    }
+
+    @Override
+    public List<MetaDto> metas(String type, String orderBy, int limit){
+        LOGGER.debug("Enter metas method:type={},order={},limit={}", type, orderBy, limit);
+        List<MetaDto> retList=null;
+        if (StringUtils.isNotBlank(type)) {
+            if(StringUtils.isBlank(orderBy)){
+                orderBy = "count desc, a.mid desc";
+            }
+            if(limit < 1 || limit > WebConst.MAX_POSTS){
+                limit = 10;
+            }
+            Map<String, Object> paraMap = new HashMap<>();
+            paraMap.put("type", type);
+            paraMap.put("order", orderBy);
+            paraMap.put("limit", limit);
+            retList= metaDao.selectFromSql(paraMap);
+        }
+        LOGGER.debug("Exit metas method");
+        return retList;
+    }
+
+
     private void write(String data, File file, Charset charset) {
         FileOutputStream os = null;
         try {
@@ -183,4 +239,5 @@ public class SiteServiceImpl implements ISiteService {
         }
 
     }
+
 }

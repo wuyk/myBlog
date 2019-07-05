@@ -1,21 +1,20 @@
 package com.wuyk.blog.service;
 
-import com.wuyk.blog.pojo.LogsDo;
+import com.wuyk.blog.model.Vo.LogVo;
 
 import java.util.List;
 
 /**
- * 日志
+ * 2017/3/4.
  */
 public interface ILogService {
 
     /**
-     * 获取日志分页
-     * @param page 当前页
-     * @param limit 每页条数
-     * @return 日志
+     * 保存操作日志
+     *
+     * @param logVo
      */
-    List<LogsDo> getLogs(int page, int limit);
+    void insertLog(LogVo logVo);
 
     /**
      *  保存
@@ -25,4 +24,12 @@ public interface ILogService {
      * @param authorId
      */
     void insertLog(String action, String data, String ip, Integer authorId);
+
+    /**
+     * 获取日志分页
+     * @param page 当前页
+     * @param limit 每页条数
+     * @return 日志
+     */
+    List<LogVo> getLogs(int page, int limit);
 }

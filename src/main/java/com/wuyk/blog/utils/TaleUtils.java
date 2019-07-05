@@ -1,8 +1,9 @@
 package com.wuyk.blog.utils;
 
 import com.wuyk.blog.constant.WebConst;
+import com.wuyk.blog.controller.admin.AttachController;
 import com.wuyk.blog.exception.TipException;
-import com.wuyk.blog.pojo.UsersDo;
+import com.wuyk.blog.model.Vo.UserVo;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.Extension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
@@ -11,9 +12,7 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.Cookie;
@@ -34,18 +33,11 @@ import java.util.regex.Pattern;
 
 /**
  * Tale工具类
+ * <p>
+ * 13 on 2017/2/21.
  */
-@Component
 public class TaleUtils {
-    private static final Logger logger = LoggerFactory.getLogger(TaleUtils.class);
-
-    private static String uploadPath;
-
-    @Value("${upload.path}")
-    public void setUploadPath(String path) {
-        uploadPath = path;
-    }
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaleUtils.class);
     /**
      * 一个月
      */
@@ -89,7 +81,7 @@ public class TaleUtils {
             InputStream resourceAsStream = new FileInputStream(fileName);
             properties.load(resourceAsStream);
         } catch (TipException | IOException e) {
-            logger.error("get properties file fail={}", e.getMessage());
+            LOGGER.error("get properties file fail={}", e.getMessage());
         }
         return properties;
     }
@@ -150,12 +142,12 @@ public class TaleUtils {
      *
      * @return
      */
-    public static UsersDo getLoginUser(HttpServletRequest request) {
+    public static UserVo getLoginUser(HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (null == session) {
             return null;
         }
-        return (UsersDo) session.getAttribute(WebConst.LOGIN_SESSION_KEY);
+        return (UserVo) session.getAttribute(WebConst.LOGIN_SESSION_KEY);
     }
 
 
@@ -265,7 +257,7 @@ public class TaleUtils {
         try {
             response.sendRedirect(Commons.site_url());
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -359,11 +351,9 @@ public class TaleUtils {
     }
 
     public static String getFileKey(String name) {
-        String prefix = uploadPath + DateKit.dateFormat(new Date(), "yyyy/MM");
-        System.out.println("--------------" + uploadPath + "--------");
-        System.out.println("--------------" + prefix + "--------");
-        if (!new File(TaleUtils.getUploadFilePath() + prefix).exists()) {
-            new File(TaleUtils.getUploadFilePath() + prefix).mkdirs();
+        String prefix = "/upload/" + DateKit.dateFormat(new Date(), "yyyy/MM");
+        if (!new File(AttachController.CLASSPATH + prefix).exists()) {
+            new File(AttachController.CLASSPATH + prefix).mkdirs();
         }
 
         name = StringUtils.trimToNull(name);

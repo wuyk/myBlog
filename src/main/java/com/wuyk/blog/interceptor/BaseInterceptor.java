@@ -1,9 +1,9 @@
 package com.wuyk.blog.interceptor;
 
-import com.wuyk.blog.constant.TypeEnum;
 import com.wuyk.blog.constant.WebConst;
-import com.wuyk.blog.pojo.OptionsDo;
-import com.wuyk.blog.pojo.UsersDo;
+import com.wuyk.blog.dto.Types;
+import com.wuyk.blog.model.Vo.OptionVo;
+import com.wuyk.blog.model.Vo.UserVo;
 import com.wuyk.blog.service.IOptionService;
 import com.wuyk.blog.service.IUserService;
 import com.wuyk.blog.utils.*;
@@ -19,11 +19,11 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * 自定义拦截器
+ * 2017/3/9.
  */
 @Component
 public class BaseInterceptor implements HandlerInterceptor {
-
-    private static final Logger logger = LoggerFactory.getLogger(BaseInterceptor.class);
+    private static final Logger LOGGE = LoggerFactory.getLogger(BaseInterceptor.class);
     private static final String USER_AGENT = "user-agent";
 
     @Resource
@@ -41,40 +41,44 @@ public class BaseInterceptor implements HandlerInterceptor {
     private AdminCommons adminCommons;
 
     @Override
-    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
-        String contextPath = httpServletRequest.getContextPath();
-        String uri = httpServletRequest.getRequestURI();
-        logger.info("UserAgent:{}", httpServletRequest.getHeader(USER_AGENT));
-        logger.info("用户访问地址：{}，来路地址：{}", uri, IPKit.getIpAddrByRequest(httpServletRequest));
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
+        String contextPath = request.getContextPath();
+        // System.out.println(contextPath);
+        String uri = request.getRequestURI();
+
+        LOGGE.info("UserAgent: {}", request.getHeader(USER_AGENT));
+        LOGGE.info("用户访问地址: {}, 来路地址: {}", uri, IPKit.getIpAddrByRequest(request));
+
 
         //请求拦截处理
-        UsersDo user = TaleUtils.getLoginUser(httpServletRequest);
-        if (user == null) {
-            Integer uid = TaleUtils.getCookieUid(httpServletRequest);
-            if (uid != null) {
-                //存在安全隐患，cookie可以伪造
+        UserVo user = TaleUtils.getLoginUser(request);
+        if (null == user) {
+            Integer uid = TaleUtils.getCookieUid(request);
+            if (null != uid) {
+                //这里还是有安全隐患,cookie是可以伪造的
                 user = userService.queryUserById(uid);
-                httpServletRequest.getSession().setAttribute(WebConst.LOGIN_SESSION_KEY, user);
+                request.getSession().setAttribute(WebConst.LOGIN_SESSION_KEY, user);
             }
         }
-        if (uri.startsWith(contextPath + "/admin") && !uri.startsWith(contextPath + "/admin/login") && user == null) {
-            httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/admin/login");
+        if (uri.startsWith(contextPath + "/admin") && !uri.startsWith(contextPath + "/admin/login") && null == user) {
+            response.sendRedirect(request.getContextPath() + "/admin/login");
             return false;
         }
-        if (httpServletRequest.getMethod().equals("GET")) {
+        //设置get请求的token
+        if (request.getMethod().equals("GET")) {
             String csrf_token = UUID.UU64();
-            //默认存储30分钟
-            cache.hset(TypeEnum.CSRF_TOKEN.getType(), csrf_token, uri, 30 * 60);
-            httpServletRequest.setAttribute("_csrf_token", csrf_token);
+            // 默认存储30分钟
+            cache.hset(Types.CSRF_TOKEN.getType(), csrf_token, uri, 30 * 60);
+            request.setAttribute("_csrf_token", csrf_token);
         }
         return true;
     }
 
     @Override
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
-        OptionsDo option = optionService.getOptionByName("site_record");
-        httpServletRequest.setAttribute("commons", commons);
-        httpServletRequest.setAttribute("option", option);
+        OptionVo ov = optionService.getOptionByName("site_record");
+        httpServletRequest.setAttribute("commons", commons);//一些工具类和公共方法
+        httpServletRequest.setAttribute("option", ov);
         httpServletRequest.setAttribute("adminCommons", adminCommons);
     }
 

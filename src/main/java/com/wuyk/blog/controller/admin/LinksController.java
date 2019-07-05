@@ -1,10 +1,10 @@
 package com.wuyk.blog.controller.admin;
 
-import com.wuyk.blog.constant.TypeEnum;
 import com.wuyk.blog.controller.BaseController;
-import com.wuyk.blog.pojo.MetasDo;
-import com.wuyk.blog.service.IMetasService;
-import com.wuyk.blog.utils.RestResponse;
+import com.wuyk.blog.dto.Types;
+import com.wuyk.blog.model.Bo.RestResponseBo;
+import com.wuyk.blog.model.Vo.MetaVo;
+import com.wuyk.blog.service.IMetaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -14,6 +14,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+/**
+ * 13 on 2017/2/21.
+ */
 @Controller
 @RequestMapping("admin/links")
 public class LinksController extends BaseController {
@@ -21,52 +24,52 @@ public class LinksController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinksController.class);
 
     @Resource
-    private IMetasService metasService;
+    private IMetaService metasService;
 
     @GetMapping(value = "")
     public String index(HttpServletRequest request) {
-        List<MetasDo> metas = metasService.getMetas(TypeEnum.LINK.getType());
+        List<MetaVo> metas = metasService.getMetas(Types.LINK.getType());
         request.setAttribute("links", metas);
         return "admin/links";
     }
 
     @PostMapping(value = "save")
     @ResponseBody
-    public RestResponse saveLink(@RequestParam String title, @RequestParam String url,
-                                 @RequestParam String logo, @RequestParam Integer mid,
-                                 @RequestParam(value = "sort", defaultValue = "0") int sort) {
+    public RestResponseBo saveLink(@RequestParam String title, @RequestParam String url,
+                                   @RequestParam String logo, @RequestParam Integer mid,
+                                   @RequestParam(value = "sort", defaultValue = "0") int sort) {
         try {
-            MetasDo metasDo = new MetasDo();
-            metasDo.setName(title);
-            metasDo.setSlug(url);
-            metasDo.setDescription(logo);
-            metasDo.setSort(sort);
-            metasDo.setType(TypeEnum.LINK.getType());
+            MetaVo metas = new MetaVo();
+            metas.setName(title);
+            metas.setSlug(url);
+            metas.setDescription(logo);
+            metas.setSort(sort);
+            metas.setType(Types.LINK.getType());
             if (null != mid) {
-                metasDo.setMid(mid);
-                metasService.update(metasDo);
+                metas.setMid(mid);
+                metasService.update(metas);
             } else {
-                metasService.saveMeta(metasDo);
+                metasService.saveMeta(metas);
             }
         } catch (Exception e) {
             String msg = "友链保存失败";
             LOGGER.error(msg, e);
-            return RestResponse.fail(msg);
+            return RestResponseBo.fail(msg);
         }
-        return RestResponse.ok();
+        return RestResponseBo.ok();
     }
 
     @RequestMapping(value = "delete")
     @ResponseBody
-    public RestResponse delete(@RequestParam int mid) {
+    public RestResponseBo delete(@RequestParam int mid) {
         try {
             metasService.delete(mid);
         } catch (Exception e) {
             String msg = "友链删除失败";
             LOGGER.error(msg, e);
-            return RestResponse.fail(msg);
+            return RestResponseBo.fail(msg);
         }
-        return RestResponse.ok();
+        return RestResponseBo.ok();
     }
 
 }

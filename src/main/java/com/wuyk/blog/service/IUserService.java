@@ -1,18 +1,27 @@
 package com.wuyk.blog.service;
 
-import com.wuyk.blog.pojo.UsersDo;
+import com.wuyk.blog.model.Vo.UserVo;
 
 /**
- * Created by wuyk
+ * 2017/3/3.
  */
 public interface IUserService {
+
+    /**
+     * 保存用户数据
+     *
+     * @param userVo 用户数据
+     * @return 主键
+     */
+
+    Integer insertUser(UserVo userVo);
 
     /**
      * 通过uid查找对象
      * @param uid
      * @return
      */
-    UsersDo queryUserById(Integer uid);
+    UserVo queryUserById(Integer uid);
 
     /**
      * 用戶登录
@@ -20,12 +29,12 @@ public interface IUserService {
      * @param password
      * @return
      */
-    UsersDo login(String username, String password);
+    UserVo login(String username, String password);
 
     /**
      * 根据主键更新user对象
-     * @param usersDo
+     * @param userVo
      * @return
      */
-    void updateByUid(UsersDo usersDo);
+    void updateByUid(UserVo userVo);
 }

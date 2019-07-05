@@ -2,57 +2,63 @@ package com.wuyk.blog.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.wuyk.blog.dao.AttachDoMapper;
-import com.wuyk.blog.pojo.AttachDo;
-import com.wuyk.blog.pojo.vo.AttachVo;
+import com.wuyk.blog.dao.AttachVoMapper;
+import com.wuyk.blog.model.Vo.AttachVo;
+import com.wuyk.blog.model.Vo.AttachVoExample;
 import com.wuyk.blog.service.IAttachService;
 import com.wuyk.blog.utils.DateKit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * Created by wuyk
+ *
  */
 @Service
 public class AttachServiceImpl implements IAttachService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttachServiceImpl.class);
 
     @Resource
-    private AttachDoMapper attachDoMapper;
+    private AttachVoMapper attachDao;
 
     @Override
-    public PageInfo<AttachDo> getAttachs(Integer page, Integer limit) {
+    public PageInfo<AttachVo> getAttachs(Integer page, Integer limit) {
         PageHelper.startPage(page, limit);
-        AttachVo attachVo = new AttachVo();
-        attachVo.setOrderByClause("id desc");
-        List<AttachDo> attachDoList = attachDoMapper.selectByExample(attachVo);
-        return new PageInfo<>(attachDoList);
+        AttachVoExample attachVoExample = new AttachVoExample();
+        attachVoExample.setOrderByClause("id desc");
+        List<AttachVo> attachVos = attachDao.selectByExample(attachVoExample);
+        return new PageInfo<>(attachVos);
     }
 
     @Override
-    public void save(String fname, String fkey, String ftype, Integer author) {
-        AttachDo attachDo = new AttachDo();
-        attachDo.setFname(fname);
-        attachDo.setAuthorId(author);
-        attachDo.setFkey(fkey);
-        attachDo.setFtype(ftype);
-        attachDo.setCreated(DateKit.getCurrentUnixTime());
-        attachDoMapper.insertSelective(attachDo);
-    }
-
-    @Override
-    public AttachDo selectById(Integer id) {
+    public AttachVo selectById(Integer id) {
         if(null != id){
-            return attachDoMapper.selectByPrimaryKey(id);
+            return attachDao.selectByPrimaryKey(id);
         }
         return null;
     }
 
     @Override
+    @Transactional
+    public void save(String fname, String fkey, String ftype, Integer author) {
+        AttachVo attach = new AttachVo();
+        attach.setFname(fname);
+        attach.setAuthorId(author);
+        attach.setFkey(fkey);
+        attach.setFtype(ftype);
+        attach.setCreated(DateKit.getCurrentUnixTime());
+        attachDao.insertSelective(attach);
+    }
+
+    @Override
+    @Transactional
     public void deleteById(Integer id) {
         if (null != id) {
-            attachDoMapper.deleteByPrimaryKey( id);
+            attachDao.deleteByPrimaryKey( id);
         }
     }
 }

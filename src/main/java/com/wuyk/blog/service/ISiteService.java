@@ -1,16 +1,21 @@
 package com.wuyk.blog.service;
 
-import com.wuyk.blog.pojo.CommentsDo;
-import com.wuyk.blog.pojo.ContentsDo;
-import com.wuyk.blog.pojo.bo.BackResponseBo;
-import com.wuyk.blog.pojo.bo.StatisticsBo;
+import com.wuyk.blog.dto.MetaDto;
+import com.wuyk.blog.model.Bo.ArchiveBo;
+import com.wuyk.blog.model.Bo.BackResponseBo;
+import com.wuyk.blog.model.Bo.StatisticsBo;
+import com.wuyk.blog.model.Vo.CommentVo;
+import com.wuyk.blog.model.Vo.ContentVo;
 
 import java.util.List;
 
 /**
  * 站点服务
+ *
+ * 13 on 2017/2/23.
  */
 public interface ISiteService {
+
 
     /**
      * 最新收到的评论
@@ -18,20 +23,22 @@ public interface ISiteService {
      * @param limit
      * @return
      */
-    List<CommentsDo> recentComments(int limit);
+    List<CommentVo> recentComments(int limit);
 
     /**
      * 最新发表的文章
+     *
      * @param limit
      * @return
      */
-    List<ContentsDo> recentContents(int limit);
+    List<ContentVo> recentContents(int limit);
 
     /**
-     * 获得后台统计数据
+     * 查询一条评论
+     * @param coid
      * @return
      */
-    StatisticsBo getStatistics();
+    CommentVo getComment(Integer coid);
 
     /**
      * 系统备份
@@ -41,4 +48,26 @@ public interface ISiteService {
      * @return
      */
     BackResponseBo backup(String bk_type, String bk_path, String fmt) throws Exception;
+
+
+    /**
+     * 获取后台统计数据
+     *
+     * @return
+     */
+    StatisticsBo getStatistics();
+
+    /**
+     * 查询文章归档
+     *
+     * @return
+     */
+    List<ArchiveBo> getArchives();
+
+    /**
+     * 获取分类/标签列表
+     * @return
+     */
+    List<MetaDto> metas(String type, String orderBy, int limit);
+
 }

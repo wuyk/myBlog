@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by BlueT on 2017/3/3.
+ * 2017/3/3.
  */
 @Component
 public class WebConst {

@@ -1,13 +1,25 @@
 package com.wuyk.blog.service;
 
 import com.github.pagehelper.PageInfo;
-import com.wuyk.blog.pojo.ContentsDo;
-import com.wuyk.blog.pojo.vo.ContentsVo;
+import com.wuyk.blog.model.Vo.ContentVo;
+import com.wuyk.blog.model.Vo.ContentVoExample;
 
 /**
- * Created by wuyk
+ * Administrator on 2017/3/13 013.
  */
 public interface IContentService {
+
+//    /**
+//     * 保存文章
+//     * @param contentVo contentVo
+//     */
+//    void insertContent(ContentVo contentVo);
+
+    /**
+     * 发布文章
+     * @param contents
+     */
+    String publish(ContentVo contents);
 
     /**
      *查询文章返回多条数据
@@ -15,15 +27,8 @@ public interface IContentService {
      * @param limit 每页条数
      * @return ContentVo
      */
-    PageInfo<ContentsDo> getContents(Integer p, Integer limit);
+    PageInfo<ContentVo> getContents(Integer p, Integer limit);
 
-    /**
-     * @param contentsVo
-     * @param page
-     * @param limit
-     * @return
-     */
-    PageInfo<ContentsDo> getArticlesWithpage(ContentsVo contentsVo, Integer page, Integer limit);
 
     /**
      * 根据id或slug获取文章
@@ -31,14 +36,41 @@ public interface IContentService {
      * @param id id
      * @return ContentVo
      */
-    ContentsDo getContents(String id);
+    ContentVo getContents(String id);
 
     /**
-     * 发布文章
-     * @param contentsDo
+     * 根据主键更新
+     * @param contentVo contentVo
      */
-    String publish(ContentsDo contentsDo);
+    void updateContentByCid(ContentVo contentVo);
 
+
+    /**
+     * 查询分类/标签下的文章归档
+     * @param mid mid
+     * @param page page
+     * @param limit limit
+     * @return ContentVo
+     */
+    PageInfo<ContentVo> getArticles(Integer mid, int page, int limit);
+
+    /**
+     * 搜索、分页
+     * @param keyword keyword
+     * @param page page
+     * @param limit limit
+     * @return ContentVo
+     */
+    PageInfo<ContentVo> getArticles(String keyword, Integer page, Integer limit);
+
+
+    /**
+     * @param commentVoExample
+     * @param page
+     * @param limit
+     * @return
+     */
+    PageInfo<ContentVo> getArticlesWithpage(ContentVoExample commentVoExample, Integer page, Integer limit);
     /**
      * 根据文章id删除
      * @param cid
@@ -47,20 +79,15 @@ public interface IContentService {
 
     /**
      * 编辑文章
-     * @param contentsDo
+     * @param contents
      */
-    String updateArticle(ContentsDo contentsDo);
+    String updateArticle(ContentVo contents);
+
 
     /**
      * 更新原有文章的category
      * @param ordinal
      * @param newCatefory
      */
-    void updateCategory(String ordinal,String newCatefory);
-
-    /**
-     * 根据主键更新
-     * @param contentsDo
-     */
-    void updateContentByCid(ContentsDo contentsDo);
+    void updateCategory(String ordinal, String newCatefory);
 }

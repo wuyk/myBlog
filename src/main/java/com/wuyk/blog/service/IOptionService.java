@@ -1,18 +1,22 @@
 package com.wuyk.blog.service;
 
-import com.wuyk.blog.pojo.OptionsDo;
+import com.wuyk.blog.model.Vo.OptionVo;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by wuyk
+ * options的接口
+ * 2017/3/7.
  */
 public interface IOptionService {
 
-    OptionsDo getOptionByName(String name);
+    void insertOption(OptionVo optionVo);
 
-    List<OptionsDo> getOptions();
+    void insertOption(String name, String value);
+
+    List<OptionVo> getOptions();
+
 
     /**
      * 保存一组配置
@@ -20,4 +24,6 @@ public interface IOptionService {
      * @param options
      */
     void saveOptions(Map<String, String> options);
+
+    OptionVo getOptionByName(String name);
 }

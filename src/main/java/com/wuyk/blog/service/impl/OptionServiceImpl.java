@@ -1,8 +1,11 @@
 package com.wuyk.blog.service.impl;
 
-import com.wuyk.blog.dao.OptionsDoMapper;
-import com.wuyk.blog.pojo.OptionsDo;
+import com.wuyk.blog.dao.OptionVoMapper;
+import com.wuyk.blog.model.Vo.OptionVo;
+import com.wuyk.blog.model.Vo.OptionVoExample;
 import com.wuyk.blog.service.IOptionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,22 +14,37 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by wuyk
+ * options表的service
+ * 2017/3/7.
  */
 @Service
 public class OptionServiceImpl implements IOptionService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OptionServiceImpl.class);
+
     @Resource
-    private OptionsDoMapper optionsDoMapper;
+    private OptionVoMapper optionDao;
 
     @Override
-    public OptionsDo getOptionByName(String name) {
-        return optionsDoMapper.selectByPrimaryKey(name);
+    public void insertOption(OptionVo optionVo) {
+        LOGGER.debug("Enter insertOption method:optionVo={}", optionVo);
+        optionDao.insertSelective(optionVo);
+        LOGGER.debug("Exit insertOption method.");
     }
 
     @Override
-    public List<OptionsDo> getOptions() {
-        return optionsDoMapper.selectAll();
+    @Transactional
+    public void insertOption(String name, String value) {
+        LOGGER.debug("Enter insertOption method:name={},value={}", name, value);
+        OptionVo optionVo = new OptionVo();
+        optionVo.setName(name);
+        optionVo.setValue(value);
+        if (optionDao.selectByPrimaryKey(name) == null) {
+            optionDao.insertSelective(optionVo);
+        } else {
+            optionDao.updateByPrimaryKeySelective(optionVo);
+        }
+        LOGGER.debug("Exit insertOption method.");
     }
 
     @Override
@@ -37,15 +55,13 @@ public class OptionServiceImpl implements IOptionService {
         }
     }
 
-    @Transactional
-    public void insertOption(String name, String value) {
-        OptionsDo optionsDo = new OptionsDo();
-        optionsDo.setName(name);
-        optionsDo.setValue(value);
-        if (optionsDoMapper.selectByPrimaryKey(name) == null) {
-            optionsDoMapper.insertSelective(optionsDo);
-        } else {
-            optionsDoMapper.updateByPrimaryKeySelective(optionsDo);
-        }
+    @Override
+    public OptionVo getOptionByName(String name) {
+        return optionDao.selectByPrimaryKey(name);
+    }
+
+    @Override
+    public List<OptionVo> getOptions() {
+        return optionDao.selectByExample(new OptionVoExample());
     }
 }

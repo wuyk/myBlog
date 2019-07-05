@@ -1,20 +1,19 @@
 package com.wuyk.blog.service;
 
 import com.github.pagehelper.PageInfo;
-import com.wuyk.blog.pojo.AttachDo;
+import com.wuyk.blog.model.Vo.AttachVo;
 
 /**
- * Created by wuyk
+ *
  */
 public interface IAttachService {
-
     /**
      * 分页查询附件
      * @param page
      * @param limit
      * @return
      */
-    PageInfo<AttachDo> getAttachs(Integer page, Integer limit);
+    PageInfo<AttachVo> getAttachs(Integer page, Integer limit);
 
     /**
      * 保存附件
@@ -31,7 +30,7 @@ public interface IAttachService {
      * @param id
      * @return
      */
-    AttachDo selectById(Integer id);
+    AttachVo selectById(Integer id);
 
     /**
      * 删除附件

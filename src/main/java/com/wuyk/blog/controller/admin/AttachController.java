@@ -1,16 +1,16 @@
 package com.wuyk.blog.controller.admin;
 
 import com.github.pagehelper.PageInfo;
-import com.wuyk.blog.constant.LogActionEnum;
-import com.wuyk.blog.constant.TypeEnum;
 import com.wuyk.blog.constant.WebConst;
 import com.wuyk.blog.controller.BaseController;
-import com.wuyk.blog.pojo.AttachDo;
-import com.wuyk.blog.pojo.UsersDo;
+import com.wuyk.blog.dto.LogActions;
+import com.wuyk.blog.dto.Types;
+import com.wuyk.blog.model.Bo.RestResponseBo;
+import com.wuyk.blog.model.Vo.AttachVo;
+import com.wuyk.blog.model.Vo.UserVo;
 import com.wuyk.blog.service.IAttachService;
 import com.wuyk.blog.service.ILogService;
 import com.wuyk.blog.utils.Commons;
-import com.wuyk.blog.utils.RestResponse;
 import com.wuyk.blog.utils.TaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +29,14 @@ import java.util.List;
 
 /**
  * 附件管理
+ * <p>
+ * 13 on 2017/2/21.
  */
 @Controller
-@RequestMapping("/admin/attach")
+@RequestMapping("admin/attach")
 public class AttachController extends BaseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AttachController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttachController.class);
 
     public static final String CLASSPATH = TaleUtils.getUploadFilePath();
 
@@ -55,9 +57,9 @@ public class AttachController extends BaseController {
     @GetMapping(value = "")
     public String index(HttpServletRequest request, @RequestParam(value = "page", defaultValue = "1") int page,
                         @RequestParam(value = "limit", defaultValue = "12") int limit) {
-        PageInfo<AttachDo> attachPaginator = attachService.getAttachs(page, limit);
+        PageInfo<AttachVo> attachPaginator = attachService.getAttachs(page, limit);
         request.setAttribute("attachs", attachPaginator);
-        request.setAttribute(TypeEnum.ATTACH_URL.getType(), Commons.site_option(TypeEnum.ATTACH_URL.getType(), Commons.site_url()));
+        request.setAttribute(Types.ATTACH_URL.getType(), Commons.site_option(Types.ATTACH_URL.getType(), Commons.site_url()));
         request.setAttribute("max_file_size", WebConst.MAX_FILE_SIZE / 1024);
         return "admin/attach";
     }
@@ -70,8 +72,8 @@ public class AttachController extends BaseController {
      */
     @PostMapping(value = "upload")
     @ResponseBody
-    public RestResponse upload(HttpServletRequest request, @RequestParam("file") MultipartFile[] multipartFiles) throws IOException {
-        UsersDo users = this.user(request);
+    public RestResponseBo upload(HttpServletRequest request, @RequestParam("file") MultipartFile[] multipartFiles) throws IOException {
+        UserVo users = this.user(request);
         Integer uid = users.getUid();
         List<String> errorFiles = new ArrayList<>();
         try {
@@ -79,7 +81,7 @@ public class AttachController extends BaseController {
                 String fname = multipartFile.getOriginalFilename();
                 if (multipartFile.getSize() <= WebConst.MAX_FILE_SIZE) {
                     String fkey = TaleUtils.getFileKey(fname);
-                    String ftype = TaleUtils.isImage(multipartFile.getInputStream()) ? TypeEnum.IMAGE.getType() : TypeEnum.FILE.getType();
+                    String ftype = TaleUtils.isImage(multipartFile.getInputStream()) ? Types.IMAGE.getType() : Types.FILE.getType();
                     File file = new File(CLASSPATH + fkey);
                     try {
                         FileCopyUtils.copy(multipartFile.getInputStream(), new FileOutputStream(file));
@@ -92,27 +94,28 @@ public class AttachController extends BaseController {
                 }
             }
         } catch (Exception e) {
-            return RestResponse.fail();
+            return RestResponseBo.fail();
         }
-        return RestResponse.ok(errorFiles);
+        return RestResponseBo.ok(errorFiles);
     }
 
     @RequestMapping(value = "delete")
     @ResponseBody
-    public RestResponse delete(@RequestParam Integer id, HttpServletRequest request) {
+    public RestResponseBo delete(@RequestParam Integer id, HttpServletRequest request) {
         try {
-            AttachDo attach = attachService.selectById(id);
+            AttachVo attach = attachService.selectById(id);
             if (null == attach) {
-                return RestResponse.fail("不存在该附件");
+                return RestResponseBo.fail("不存在该附件");
             }
             attachService.deleteById(id);
             new File(CLASSPATH + attach.getFkey()).delete();
-            logService.insertLog(LogActionEnum.DEL_ARTICLE.getAction(), attach.getFkey(), request.getRemoteAddr(), this.getUid(request));
+            logService.insertLog(LogActions.DEL_ARTICLE.getAction(), attach.getFkey(), request.getRemoteAddr(), this.getUid(request));
         } catch (Exception e) {
             String msg = "附件删除失败";
-            logger.error(msg, e);
-            return RestResponse.fail(msg);
+            LOGGER.error(msg, e);
+            return RestResponseBo.fail(msg);
         }
-        return RestResponse.ok();
+        return RestResponseBo.ok();
     }
+
 }

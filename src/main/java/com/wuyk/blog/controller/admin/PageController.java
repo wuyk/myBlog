@@ -1,16 +1,16 @@
 package com.wuyk.blog.controller.admin;
 
 import com.github.pagehelper.PageInfo;
-import com.wuyk.blog.constant.LogActionEnum;
-import com.wuyk.blog.constant.TypeEnum;
 import com.wuyk.blog.constant.WebConst;
 import com.wuyk.blog.controller.BaseController;
-import com.wuyk.blog.pojo.ContentsDo;
-import com.wuyk.blog.pojo.UsersDo;
-import com.wuyk.blog.pojo.vo.ContentsVo;
+import com.wuyk.blog.dto.LogActions;
+import com.wuyk.blog.dto.Types;
+import com.wuyk.blog.model.Bo.RestResponseBo;
+import com.wuyk.blog.model.Vo.ContentVo;
+import com.wuyk.blog.model.Vo.ContentVoExample;
+import com.wuyk.blog.model.Vo.UserVo;
 import com.wuyk.blog.service.IContentService;
 import com.wuyk.blog.service.ILogService;
-import com.wuyk.blog.utils.RestResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -19,11 +19,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * 13 on 2017/2/21.
+ */
 @Controller()
 @RequestMapping("admin/page")
 public class PageController extends BaseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(PageController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageController.class);
 
     @Resource
     private IContentService contentsService;
@@ -33,90 +36,90 @@ public class PageController extends BaseController {
 
     @GetMapping(value = "")
     public String index(HttpServletRequest request) {
-        ContentsVo contentVoExample = new ContentsVo();
+        ContentVoExample contentVoExample = new ContentVoExample();
         contentVoExample.setOrderByClause("created desc");
-        contentVoExample.createCriteria().andTypeEqualTo(TypeEnum.PAGE.getType());
-        PageInfo<ContentsDo> contentsPaginator = contentsService.getArticlesWithpage(contentVoExample, 1, WebConst.MAX_POSTS);
+        contentVoExample.createCriteria().andTypeEqualTo(Types.PAGE.getType());
+        PageInfo<ContentVo> contentsPaginator = contentsService.getArticlesWithpage(contentVoExample, 1, WebConst.MAX_POSTS);
         request.setAttribute("articles", contentsPaginator);
         return "admin/page_list";
     }
 
     @GetMapping(value = "new")
-    public String newPage() {
+    public String newPage(HttpServletRequest request) {
         return "admin/page_edit";
     }
 
     @GetMapping(value = "/{cid}")
     public String editPage(@PathVariable String cid, HttpServletRequest request) {
-        ContentsDo contents = contentsService.getContents(cid);
+        ContentVo contents = contentsService.getContents(cid);
         request.setAttribute("contents", contents);
         return "admin/page_edit";
     }
 
     @PostMapping(value = "publish")
     @ResponseBody
-    public RestResponse publishPage(@RequestParam String title, @RequestParam String content,
-                                    @RequestParam String status, @RequestParam String slug,
-                                    @RequestParam(required = false) Integer allowComment, @RequestParam(required = false) Integer allowPing, HttpServletRequest request) {
+    public RestResponseBo publishPage(@RequestParam String title, @RequestParam String content,
+                                      @RequestParam String status, @RequestParam String slug,
+                                      @RequestParam(required = false) Integer allowComment, @RequestParam(required = false) Integer allowPing, HttpServletRequest request) {
 
-        UsersDo users = this.user(request);
-        ContentsDo contentsDo = new ContentsDo();
-        contentsDo.setTitle(title);
-        contentsDo.setContent(content);
-        contentsDo.setStatus(status);
-        contentsDo.setSlug(slug);
-        contentsDo.setType(TypeEnum.PAGE.getType());
+        UserVo users = this.user(request);
+        ContentVo contents = new ContentVo();
+        contents.setTitle(title);
+        contents.setContent(content);
+        contents.setStatus(status);
+        contents.setSlug(slug);
+        contents.setType(Types.PAGE.getType());
         if (null != allowComment) {
-            contentsDo.setAllowComment(allowComment == 1);
+            contents.setAllowComment(allowComment == 1);
         }
         if (null != allowPing) {
-            contentsDo.setAllowPing(allowPing == 1);
+            contents.setAllowPing(allowPing == 1);
         }
-        contentsDo.setAuthorId(users.getUid());
-        String result = contentsService.publish(contentsDo);
+        contents.setAuthorId(users.getUid());
+        String result = contentsService.publish(contents);
         if (!WebConst.SUCCESS_RESULT.equals(result)) {
-            return RestResponse.fail(result);
+            return RestResponseBo.fail(result);
         }
-        return RestResponse.ok();
+        return RestResponseBo.ok();
     }
 
     @PostMapping(value = "modify")
     @ResponseBody
-    public RestResponse modifyArticle(@RequestParam Integer cid, @RequestParam String title,
+    public RestResponseBo modifyArticle(@RequestParam Integer cid, @RequestParam String title,
                                         @RequestParam String content,
                                         @RequestParam String status, @RequestParam String slug,
                                         @RequestParam(required = false) Integer allowComment, @RequestParam(required = false) Integer allowPing, HttpServletRequest request) {
 
-        UsersDo users = this.user(request);
-        ContentsDo contentsDo = new ContentsDo();
-        contentsDo.setCid(cid);
-        contentsDo.setTitle(title);
-        contentsDo.setContent(content);
-        contentsDo.setStatus(status);
-        contentsDo.setSlug(slug);
-        contentsDo.setType(TypeEnum.PAGE.getType());
+        UserVo users = this.user(request);
+        ContentVo contents = new ContentVo();
+        contents.setCid(cid);
+        contents.setTitle(title);
+        contents.setContent(content);
+        contents.setStatus(status);
+        contents.setSlug(slug);
+        contents.setType(Types.PAGE.getType());
         if (null != allowComment) {
-            contentsDo.setAllowComment(allowComment == 1);
+            contents.setAllowComment(allowComment == 1);
         }
         if (null != allowPing) {
-            contentsDo.setAllowPing(allowPing == 1);
+            contents.setAllowPing(allowPing == 1);
         }
-        contentsDo.setAuthorId(users.getUid());
-        String result = contentsService.updateArticle(contentsDo);
+        contents.setAuthorId(users.getUid());
+        String result = contentsService.updateArticle(contents);
         if (!WebConst.SUCCESS_RESULT.equals(result)) {
-            return RestResponse.fail(result);
+            return RestResponseBo.fail(result);
         }
-        return RestResponse.ok();
+        return RestResponseBo.ok();
     }
 
     @RequestMapping(value = "delete")
     @ResponseBody
-    public RestResponse delete(@RequestParam int cid, HttpServletRequest request) {
+    public RestResponseBo delete(@RequestParam int cid, HttpServletRequest request) {
         String result = contentsService.deleteByCid(cid);
-        logService.insertLog(LogActionEnum.DEL_ARTICLE.getAction(), cid + "", request.getRemoteAddr(), this.getUid(request));
+        logService.insertLog(LogActions.DEL_ARTICLE.getAction(), cid + "", request.getRemoteAddr(), this.getUid(request));
         if (!WebConst.SUCCESS_RESULT.equals(result)) {
-            return RestResponse.fail(result);
+            return RestResponseBo.fail(result);
         }
-        return RestResponse.ok();
+        return RestResponseBo.ok();
     }
 }

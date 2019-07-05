@@ -2,20 +2,23 @@ package com.wuyk.blog.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.vdurmont.emoji.EmojiParser;
-import com.wuyk.blog.constant.TypeEnum;
 import com.wuyk.blog.constant.WebConst;
-import com.wuyk.blog.dao.ContentsDoMapper;
+import com.wuyk.blog.dao.ContentVoMapper;
+import com.wuyk.blog.dao.MetaVoMapper;
+import com.wuyk.blog.dto.Types;
 import com.wuyk.blog.exception.TipException;
-import com.wuyk.blog.pojo.ContentsDo;
-import com.wuyk.blog.pojo.vo.ContentsVo;
+import com.wuyk.blog.model.Vo.ContentVo;
+import com.wuyk.blog.model.Vo.ContentVoExample;
 import com.wuyk.blog.service.IContentService;
-import com.wuyk.blog.service.IMetasService;
-import com.wuyk.blog.service.IRelationshipsService;
+import com.wuyk.blog.service.IMetaService;
+import com.wuyk.blog.service.IRelationshipService;
 import com.wuyk.blog.utils.DateKit;
 import com.wuyk.blog.utils.TaleUtils;
 import com.wuyk.blog.utils.Tools;
+import com.vdurmont.emoji.EmojiParser;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,48 +26,104 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * Created by wuyk
+ * Administrator on 2017/3/13 013.
  */
 @Service
 public class ContentServiceImpl implements IContentService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentServiceImpl.class);
 
     @Resource
-    private ContentsDoMapper contentsDoMapper;
+    private ContentVoMapper contentDao;
 
     @Resource
-    private IMetasService metasService;
+    private MetaVoMapper metaDao;
 
     @Resource
-    private IRelationshipsService relationshipsService;
+    private IRelationshipService relationshipService;
+
+    @Resource
+    private IMetaService metasService;
 
     @Override
-    public PageInfo<ContentsDo> getContents(Integer p, Integer limit) {
-        ContentsVo example = new ContentsVo();
+    @Transactional
+    public String publish(ContentVo contents) {
+        if (null == contents) {
+            return "文章对象为空";
+        }
+        if (StringUtils.isBlank(contents.getTitle())) {
+            return "文章标题不能为空";
+        }
+        if (StringUtils.isBlank(contents.getContent())) {
+            return "文章内容不能为空";
+        }
+        int titleLength = contents.getTitle().length();
+        if (titleLength > WebConst.MAX_TITLE_COUNT) {
+            return "文章标题过长";
+        }
+        int contentLength = contents.getContent().length();
+        if (contentLength > WebConst.MAX_TEXT_COUNT) {
+            return "文章内容过长";
+        }
+        if (null == contents.getAuthorId()) {
+            return "请登录后发布文章";
+        }
+        if (StringUtils.isNotBlank(contents.getSlug())) {
+            if (contents.getSlug().length() < 5) {
+                return "路径太短了";
+            }
+            if (!TaleUtils.isPath(contents.getSlug())) return "您输入的路径不合法";
+            ContentVoExample contentVoExample = new ContentVoExample();
+            contentVoExample.createCriteria().andTypeEqualTo(contents.getType()).andStatusEqualTo(contents.getSlug());
+            long count = contentDao.countByExample(contentVoExample);
+            if (count > 0) return "该路径已经存在，请重新输入";
+        } else {
+            contents.setSlug(null);
+        }
+
+        contents.setContent(EmojiParser.parseToAliases(contents.getContent()));
+
+        int time = DateKit.getCurrentUnixTime();
+        contents.setCreated(time);
+        contents.setModified(time);
+        contents.setHits(0);
+        contents.setCommentsNum(0);
+
+        String tags = contents.getTags();
+        String categories = contents.getCategories();
+        System.out.println(contents.getCid());
+        contentDao.insert(contents);
+        System.out.println(contents.getCid());
+        Integer cid = contents.getCid();
+        metasService.saveMetas(cid, tags, Types.TAG.getType());
+        metasService.saveMetas(cid, categories, Types.CATEGORY.getType());
+        return WebConst.SUCCESS_RESULT;
+    }
+
+    @Override
+    public PageInfo<ContentVo> getContents(Integer p, Integer limit) {
+        LOGGER.debug("Enter getContents method");
+        ContentVoExample example = new ContentVoExample();
         example.setOrderByClause("created desc");
-        example.createCriteria().andTypeEqualTo(TypeEnum.ARTICLE.getType()).andStatusEqualTo(TypeEnum.PUBLISH.getType());
+        example.createCriteria().andTypeEqualTo(Types.ARTICLE.getType()).andStatusEqualTo(Types.PUBLISH.getType());
         PageHelper.startPage(p, limit);
-        List<ContentsDo> data = contentsDoMapper.selectByExampleWithBLOBs(example);
-        return new PageInfo<>(data);
+        List<ContentVo> data = contentDao.selectByExampleWithBLOBs(example);
+        PageInfo<ContentVo> pageInfo = new PageInfo<>(data);
+        LOGGER.debug("Exit getContents method");
+        return pageInfo;
     }
 
     @Override
-    public PageInfo<ContentsDo> getArticlesWithpage(ContentsVo contentsVo, Integer page, Integer limit) {
-        PageHelper.startPage(page, limit);
-        List<ContentsDo> contentsDoList = contentsDoMapper.selectByExampleWithBLOBs(contentsVo);
-        return new PageInfo<>(contentsDoList);
-    }
-
-    @Override
-    public ContentsDo getContents(String id) {
+    public ContentVo getContents(String id) {
         if (StringUtils.isNotBlank(id)) {
             if (Tools.isNumber(id)) {
-                return contentsDoMapper.selectByPrimaryKey(Integer.valueOf(id));
+                ContentVo contentVo = contentDao.selectByPrimaryKey(Integer.valueOf(id));
+                return contentVo;
             } else {
-                ContentsVo contentsVo = new ContentsVo();
-                contentsVo.createCriteria().andSlugEqualTo(id);
-                List<ContentsDo> contentVos = contentsDoMapper.selectByExampleWithBLOBs(contentsVo);
+                ContentVoExample contentVoExample = new ContentVoExample();
+                contentVoExample.createCriteria().andSlugEqualTo(id);
+                List<ContentVo> contentVos = contentDao.selectByExampleWithBLOBs(contentVoExample);
                 if (contentVos.size() != 1) {
-                    throw new TipException("查询失败");
+                    throw new TipException("query content by id and return is not one");
                 }
                 return contentVos.get(0);
             }
@@ -73,121 +132,98 @@ public class ContentServiceImpl implements IContentService {
     }
 
     @Override
-    @Transactional
-    public String publish(ContentsDo contentsDo) {
-        if (null == contentsDo) {
-            return "文章对象为空";
+    public void updateContentByCid(ContentVo contentVo) {
+        if (null != contentVo && null != contentVo.getCid()) {
+            contentDao.updateByPrimaryKeySelective(contentVo);
         }
-        if (StringUtils.isBlank(contentsDo.getTitle())) {
-            return "文章标题不能为空";
-        }
-        if (StringUtils.isBlank(contentsDo.getContent())) {
-            return "文章内容不能为空";
-        }
-        int titleLength = contentsDo.getTitle().length();
-        if (titleLength > WebConst.MAX_TITLE_COUNT) {
-            return "文章标题过长";
-        }
-        int contentLength = contentsDo.getContent().length();
-        if (contentLength > WebConst.MAX_TEXT_COUNT) {
-            return "文章内容过长";
-        }
-        if (null == contentsDo.getAuthorId()) {
-            return "请登录后发布文章";
-        }
-        if (StringUtils.isNotBlank(contentsDo.getSlug())) {
-            if (contentsDo.getSlug().length() < 5) {
-                return "路径太短了";
-            }
-            if (!TaleUtils.isPath(contentsDo.getSlug())) return "您输入的路径不合法";
-            ContentsVo contentsVo = new ContentsVo();
-            contentsVo.createCriteria().andTypeEqualTo(contentsDo.getType()).andSlugEqualTo(contentsDo.getSlug());
-            long count = contentsDoMapper.countByExample(contentsVo);
-            if (count > 0) return "该路径已经存在，请重新输入";
-        } else {
-            contentsDo.setSlug(null);
-        }
+    }
 
-        contentsDo.setContent(EmojiParser.parseToAliases(contentsDo.getContent()));
+    @Override
+    public PageInfo<ContentVo> getArticles(Integer mid, int page, int limit) {
+        int total = metaDao.countWithSql(mid);
+        PageHelper.startPage(page, limit);
+        List<ContentVo> list = contentDao.findByCatalog(mid);
+        PageInfo<ContentVo> paginator = new PageInfo<>(list);
+        paginator.setTotal(total);
+        return paginator;
+    }
 
-        int time = DateKit.getCurrentUnixTime();
-        contentsDo.setCreated(time);
-        contentsDo.setModified(time);
-        contentsDo.setHits(0);
-        contentsDo.setCommentsNum(0);
+    @Override
+    public PageInfo<ContentVo> getArticles(String keyword, Integer page, Integer limit) {
+        PageHelper.startPage(page, limit);
+        ContentVoExample contentVoExample = new ContentVoExample();
+        ContentVoExample.Criteria criteria = contentVoExample.createCriteria();
+        criteria.andTypeEqualTo(Types.ARTICLE.getType());
+        criteria.andStatusEqualTo(Types.PUBLISH.getType());
+        criteria.andTitleLike("%" + keyword + "%");
+        contentVoExample.setOrderByClause("created desc");
+        List<ContentVo> contentVos = contentDao.selectByExampleWithBLOBs(contentVoExample);
+        return new PageInfo<>(contentVos);
+    }
 
-        String tags = contentsDo.getTags();
-        String categories = contentsDo.getCategories();
-        contentsDoMapper.insert(contentsDo);
-        Integer cid = contentsDo.getCid();
-        metasService.saveMetas(cid, tags, TypeEnum.TAG.getType());
-        metasService.saveMetas(cid, categories, TypeEnum.CATEGORY.getType());
-        return WebConst.SUCCESS_RESULT;
+    @Override
+    public PageInfo<ContentVo> getArticlesWithpage(ContentVoExample commentVoExample, Integer page, Integer limit) {
+        PageHelper.startPage(page, limit);
+        List<ContentVo> contentVos = contentDao.selectByExampleWithBLOBs(commentVoExample);
+        return new PageInfo<>(contentVos);
     }
 
     @Override
     @Transactional
     public String deleteByCid(Integer cid) {
-        ContentsDo contentsDo = this.getContents(cid + "");
-        if (null != contentsDo) {
-            contentsDoMapper.deleteByPrimaryKey(cid);
-            relationshipsService.deleteById(cid, null);
+        ContentVo contents = this.getContents(cid + "");
+        if (null != contents) {
+            contentDao.deleteByPrimaryKey(cid);
+            relationshipService.deleteById(cid, null);
             return WebConst.SUCCESS_RESULT;
         }
         return "数据为空";
     }
 
     @Override
+    public void updateCategory(String ordinal, String newCatefory) {
+        ContentVo contentVo = new ContentVo();
+        contentVo.setCategories(newCatefory);
+        ContentVoExample example = new ContentVoExample();
+        example.createCriteria().andCategoriesEqualTo(ordinal);
+        contentDao.updateByExampleSelective(contentVo, example);
+    }
+
+    @Override
     @Transactional
-    public String updateArticle(ContentsDo contentsDo) {
-        if (null == contentsDo) {
+    public String updateArticle(ContentVo contents) {
+        if (null == contents) {
             return "文章对象为空";
         }
-        if (StringUtils.isBlank(contentsDo.getTitle())) {
+        if (StringUtils.isBlank(contents.getTitle())) {
             return "文章标题不能为空";
         }
-        if (StringUtils.isBlank(contentsDo.getContent())) {
+        if (StringUtils.isBlank(contents.getContent())) {
             return "文章内容不能为空";
         }
-        int titleLength = contentsDo.getTitle().length();
+        int titleLength = contents.getTitle().length();
         if (titleLength > WebConst.MAX_TITLE_COUNT) {
             return "文章标题过长";
         }
-        int contentLength = contentsDo.getContent().length();
+        int contentLength = contents.getContent().length();
         if (contentLength > WebConst.MAX_TEXT_COUNT) {
             return "文章内容过长";
         }
-        if (null == contentsDo.getAuthorId()) {
+        if (null == contents.getAuthorId()) {
             return "请登录后发布文章";
         }
-        if (StringUtils.isBlank(contentsDo.getSlug())) {
-            contentsDo.setSlug(null);
+        if (StringUtils.isBlank(contents.getSlug())) {
+            contents.setSlug(null);
         }
         int time = DateKit.getCurrentUnixTime();
-        contentsDo.setModified(time);
-        Integer cid = contentsDo.getCid();
-        contentsDo.setContent(EmojiParser.parseToAliases(contentsDo.getContent()));
+        contents.setModified(time);
+        Integer cid = contents.getCid();
+        contents.setContent(EmojiParser.parseToAliases(contents.getContent()));
 
-        contentsDoMapper.updateByPrimaryKeySelective(contentsDo);
-        relationshipsService.deleteById(cid, null);
-        metasService.saveMetas(cid, contentsDo.getTags(), TypeEnum.TAG.getType());
-        metasService.saveMetas(cid, contentsDo.getCategories(), TypeEnum.CATEGORY.getType());
+        contentDao.updateByPrimaryKeySelective(contents);
+        relationshipService.deleteById(cid, null);
+        metasService.saveMetas(cid, contents.getTags(), Types.TAG.getType());
+        metasService.saveMetas(cid, contents.getCategories(), Types.CATEGORY.getType());
         return WebConst.SUCCESS_RESULT;
-    }
-
-    @Override
-    public void updateCategory(String ordinal, String newCatefory) {
-        ContentsDo contentsDo = new ContentsDo();
-        contentsDo.setCategories(newCatefory);
-        ContentsVo example = new ContentsVo();
-        example.createCriteria().andCategoriesEqualTo(ordinal);
-        contentsDoMapper.updateByExampleSelective(contentsDo, example);
-    }
-
-    @Override
-    public void updateContentByCid(ContentsDo contentsDo) {
-        if (null != contentsDo && null != contentsDo.getCid()) {
-            contentsDoMapper.updateByPrimaryKeySelective(contentsDo);
-        }
     }
 }

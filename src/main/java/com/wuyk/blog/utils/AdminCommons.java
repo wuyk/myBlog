@@ -1,12 +1,14 @@
 package com.wuyk.blog.utils;
 
 
-import com.wuyk.blog.pojo.MetasDo;
+import com.wuyk.blog.model.Vo.MetaVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
  * 后台公共函数
+ * <p>
+ * 13 on 2017/2/21.
  */
 @Component
 public final class AdminCommons {
@@ -17,7 +19,7 @@ public final class AdminCommons {
      * @param cats
      * @return
      */
-    public static boolean exist_cat(MetasDo category, String cats) {
+    public static boolean exist_cat(MetaVo category, String cats) {
         String[] arr = StringUtils.split(cats, ",");
         if (null != arr && arr.length > 0) {
             for (String c : arr) {

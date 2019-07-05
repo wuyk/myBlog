@@ -2,9 +2,9 @@ package com.wuyk.blog.utils;
 
 
 import com.github.pagehelper.PageInfo;
-import com.vdurmont.emoji.EmojiParser;
 import com.wuyk.blog.constant.WebConst;
-import com.wuyk.blog.pojo.ContentsDo;
+import com.wuyk.blog.model.Vo.ContentVo;
+import com.vdurmont.emoji.EmojiParser;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +17,13 @@ import java.util.regex.Pattern;
 
 /**
  * 主题公共函数
+ * <p>
+ * 13 on 2017/2/21.
  */
 @Component
 public final class Commons {
 
-    private static String THEME = "themes/default";
+    public static String THEME = "themes/default";
 
     /**
      * 判断分页中是否有数据
@@ -130,12 +132,12 @@ public final class Commons {
      * @return
      */
     public static String gravatar(String email) {
-        //String avatarUrl = "https://github.com/identicons/";
-        //if (StringUtils.isBlank(email)) {
-        //    email = myEmailLocation;
-        //}
-        //String hash = TaleUtils.MD5encode(email.trim().toLowerCase());
-        return "https://avatars3.githubusercontent.com/u/20266011?s=400&u=42a0239996cc67b868055650d42c3c02070ef68b&v=4.png";
+        String avatarUrl = "https://github.com/identicons/";
+        if (StringUtils.isBlank(email)) {
+            email = "user@hanshuai.xin";
+        }
+        String hash = TaleUtils.MD5encode(email.trim().toLowerCase());
+        return avatarUrl + hash + ".png";
     }
 
     /**
@@ -144,7 +146,7 @@ public final class Commons {
      * @param contents
      * @return
      */
-    public static String permalink(ContentsDo contents) {
+    public static String permalink(ContentVo contents) {
         return permalink(contents.getCid(), contents.getSlug());
     }
 
@@ -271,7 +273,7 @@ public final class Commons {
      *
      * @return
      */
-    public static String show_thumb(ContentsDo contents) {
+    public static String show_thumb(ContentVo contents) {
         int cid = contents.getCid();
         int size = cid % 20;
         size = size == 0 ? 1 : size;
